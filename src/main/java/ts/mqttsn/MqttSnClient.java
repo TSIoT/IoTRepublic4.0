@@ -27,11 +27,11 @@ import ts.utility.ConfigurationParser;
  *
  * @author loki.chuang
  */
-public class MqttSnGateway implements MqttCallback
+public class MqttSnClient implements MqttCallback,IMqttSnClient
 {
     protected String mqttSnName = "Default SN";
 
-    private static final Logger LOG = LoggerFactory.getLogger(MqttSnGateway.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MqttSnClient.class);
 
     private final ConfigurationParser parser = new ConfigurationParser();
     private final String defaultConfigFilePath = "/config/MqttsnGateway.config";
@@ -40,29 +40,44 @@ public class MqttSnGateway implements MqttCallback
 
     private Properties m_properties = null;
 
-    public MqttSnGateway()
+    public MqttSnClient()
     {
+        
         boolean isDebugEnable=LOG.isDebugEnabled();
         this.initGatewayFromConfigFile();
     }
 
-    @Override
+    @Override //MqttCallback
     public void connectionLost(Throwable thrwbl)
     {
         LOG.info("Lost connection from broker:"+this.m_properties.getProperty("brokerIp"));
     }
     
-    @Override
+    @Override //MqttCallback
     public void deliveryComplete(IMqttDeliveryToken imdt)
     {
         
     }
     
-    @Override
+    @Override //MqttCallback
     public void messageArrived(String topic, MqttMessage mm) throws Exception
     {
         String msg=new String(mm.getPayload());
-        LOG.debug(topic+":"+msg);
+        LOG.info(msg);
+        //LOG.debug(topic+":"+msg);
+    }
+    
+    @Override //IMqttSnClient
+    public void ClientStart()
+    {
+        this.ConnectToBroker();
+    }
+    
+    
+    @Override //IMqttSnClient
+    public void ClientStop()
+    {
+        this.DisconnectFromBroker();
     }
 
     public void ConnectToBroker()
@@ -113,7 +128,7 @@ public class MqttSnGateway implements MqttCallback
                 this.mqttClient.disconnect();
             } catch (MqttException ex)
             {
-                java.util.logging.Logger.getLogger(MqttSnGateway.class.getName()).log(Level.SEVERE, null, ex);
+                java.util.logging.Logger.getLogger(MqttSnClient.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
@@ -151,7 +166,7 @@ public class MqttSnGateway implements MqttCallback
             this.m_properties = this.parser.getProperties();
         } catch (ParseException ex)
         {
-            java.util.logging.Logger.getLogger(MqttSnGateway.class.getName()).log(Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MqttSnClient.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
