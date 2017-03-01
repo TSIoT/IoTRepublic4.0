@@ -5,22 +5,19 @@
  */
 package ts.mqttsn;
 
-import gnu.io.CommPort;
-import gnu.io.CommPortIdentifier;
-import gnu.io.NoSuchPortException;
-import gnu.io.PortInUseException;
-import gnu.io.SerialPort;
-import gnu.io.UnsupportedCommOperationException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 import java.util.*;
+import java.util.logging.Level;
 import ts.utility.SerialTool;
 import java.util.logging.Logger;
 
 import org.slf4j.LoggerFactory;
+import ts.utility.ISerialListener;
+
 
 /**
  *
@@ -31,13 +28,12 @@ public class XBeeAtClient extends MqttSnClient
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(XBeeAtClient.class);
     
     private Properties m_properties = null;
-    private CommPort commPort;
-    private InputStream in;
-    private OutputStream out;
+    
+    private final SerialTool serialTool=new SerialTool();
     private SerialReader serialReader;
 
     private final String defaultConfigFilePath = "/config/XBeeAtClient.config";
-    private boolean isComportOpened = false;
+    
 
     //private CommPort commPort;
     public XBeeAtClient()
@@ -49,7 +45,13 @@ public class XBeeAtClient extends MqttSnClient
     public void ClientStart()
     {
         LOG.info("XBeeAT Client start");
+        String portName=this.m_properties.getProperty("portName");
+        String baudRate=this.m_properties.getProperty("baudRate");
+        
         super.ClientStart();
+        this.serialTool.openComport(portName, baudRate);
+        this.serialTool.startListerSerial(new SerialReader(this));
+        /*
         this.openComport();
 
         if (this.isComportOpened && this.initXBee())
@@ -57,74 +59,28 @@ public class XBeeAtClient extends MqttSnClient
             this.serialReader = new SerialReader(this.in, this);
             new Thread(this.serialReader).start();
         }
+        */
     }
 
     @Override //MqttSnClient
     public void ClientStop()
     {
         LOG.info("XBeeAT Client stop");
-        //this.comportReadThread.stop();
-        if (this.serialReader != null)
-        {
-            this.serialReader.Close();
-        }
 
-        super.ClientStop();
-        this.closeComport();
-        
+
+        super.ClientStop();               
     }
     
-    private void openComport()
-    {
-        try
-        {
-            //read config file for comport
-            String portName = this.m_properties.getProperty("portName");
-            String baudRate = this.m_properties.getProperty("baudRate");
-            CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(portName);
+    
 
-            //open comport
-            if (portIdentifier.getPortType() == CommPortIdentifier.PORT_SERIAL)
-            {
-                this.commPort = portIdentifier.open(portName, 2000); //2000 is timeout                
-                SerialPort serialPort = (SerialPort) commPort;
-                serialPort.setSerialPortParams(Integer.parseInt(baudRate), SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-
-                this.in = serialPort.getInputStream();
-                this.out = serialPort.getOutputStream();
-                LOG.debug(portName+" is opened with baudrate:"+baudRate);
-            }
-            this.isComportOpened = true;
-
-        } catch (NoSuchPortException | PortInUseException | UnsupportedCommOperationException | IOException ex)
-        {
-            LOG.error(ex.toString());
-        }
-    }
-
-    private void closeComport()
-    {
-        try
-        {
-            
-            this.in.close();
-            this.out.close();
-            this.commPort.close();
-            this.isComportOpened=false;
-        } catch (IOException ex)
-        {
-            LOG.error(ex.toString());
-            //Logger.getLogger(XBeeAtClient.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-    }
 
     private boolean initXBee()
     {
+        
         boolean initFinish = false;
         byte[] readBuffer;
         int len = 0;
-
+/*
         try
         {
             Thread.sleep(1000);
@@ -142,48 +98,34 @@ public class XBeeAtClient extends MqttSnClient
         {
             LOG.error(ex.toString());
         }
-
+        */
         return initFinish;
     }
     
-    private class SerialReader implements Runnable
+    private class SerialReader implements ISerialListener
     {
-
-        XBeeAtClient xbeeAtClient;
-        InputStream in;
-
+        XBeeAtClient xbeeAtClient;        
+       
         private volatile boolean runnning = true;
 
-        public SerialReader(InputStream in, XBeeAtClient xbeeAtClient)
-        {
-            this.in = in;
+        public SerialReader(XBeeAtClient xbeeAtClient)
+        {           
             this.xbeeAtClient = xbeeAtClient;
         }
 
         @Override
-        public void run()
+        public void dataReceived(byte[] recvData)
         {
-            byte[] buffer = new byte[1024];
-            int len = -1;
             try
             {
-                LOG.debug("SerialReader started");
-                while (this.runnning && (len = this.in.read(buffer)) > -1)
-                {
-                    //System.out.print(new String(buffer, 0, len));                    
-                }
-                LOG.debug("SerialReader safely terminated");
-                //System.out.println("Loop end");
-            } catch (IOException e)
+                MqttSnPackage pack=new MqttSnPackage();
+                pack.parseRecvData(recvData);
+                LOG.debug(new String(pack.payload));
+                //LOG.info("Recv data"+new String(recvData));
+            } catch (MqttSnPackage.ParseException ex)
             {
-                LOG.error(e.toString());
-                //e.printStackTrace();
+                LOG.error(ex.toString());
             }
-        }
-
-        public void Close()
-        {
-            this.runnning = false;
         }
     }
     

@@ -9,7 +9,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import ts.mqttsn.IMqttSnClient;
 import ts.mqttsn.MqttSnClient;
-import ts.mqttsn.XBeeClient;
+import ts.mqttsn.XBeeAtClient;
+
 
 /**
  *
@@ -19,39 +20,17 @@ public class MainClass
 {
 
     public static void main(String args[])
-    {
-        
-        try
-        {                         
-            /*
-            MqttSnClient gateway = new MqttSnClient();
-            gateway.ClientStart();            
-            */
-            /*
-            for (int i = 0; i < 10; i++)
-            {
-                gateway.SimplePublish("/hello/world", "This is from java");
-                Thread.sleep(1000);
-            }
-            */    
-            /*
-            gateway.SimpleSubscribe("/hello/world");
-            Thread.sleep(10000);
-            gateway.ClientStop();            
-            */
-            
-       
-            IMqttSnClient xbeeClient=new XBeeClient();
-            xbeeClient.ClientStart();
-            //xbeeClient.SimpleSubscribe("/hello/world");
-            Thread.sleep(5000);
-            xbeeClient.ClientStop();
-
-
-        } catch (InterruptedException ex)
+    {        
+        IMqttSnClient xbeeClient=new XBeeAtClient();
+        xbeeClient.ClientStart();
+        Runtime.getRuntime().addShutdownHook(new Thread() 
         {
-            Logger.getLogger(MainClass.class.getName()).log(Level.SEVERE, null, ex);
-        }
+            @Override
+            public void run() 
+            {
+                xbeeClient.ClientStop();
+            }
+        });
         
     }
 }

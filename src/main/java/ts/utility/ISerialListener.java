@@ -3,14 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ts.mqttsn;
-
+package ts.utility;
 
 /**
  *
  * @author loki.chuang
  */
-public class XBeeClient extends MqttSnClient
+public interface ISerialListener
 {
-    
+    public void dataReceived(byte[] recvData);
+            
 }

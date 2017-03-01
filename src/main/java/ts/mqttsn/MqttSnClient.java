@@ -41,10 +41,9 @@ public class MqttSnClient implements MqttCallback,IMqttSnClient
     private Properties m_properties = null;
 
     public MqttSnClient()
-    {
-        
-        boolean isDebugEnable=LOG.isDebugEnabled();
-        this.initGatewayFromConfigFile();
+    {        
+        this.m_properties=this.readConfigFile(this.defaultConfigFilePath);
+        //this.initGatewayFromConfigFile();
     }
 
     @Override //MqttCallback
@@ -131,6 +130,25 @@ public class MqttSnClient implements MqttCallback,IMqttSnClient
                 java.util.logging.Logger.getLogger(MqttSnClient.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+    }
+    
+    protected Properties readConfigFile(String filePath)
+    {
+        ConfigurationParser parser = new ConfigurationParser();
+        Properties properties=null;
+        try
+        {
+            String currentPath = System.getProperty("user.dir");
+            File configFile = new File(currentPath +filePath);
+            parser.parse(configFile);
+            properties = parser.getProperties();
+        } catch (ParseException ex)
+        {
+            LOG.error(ex.toString());
+            //java.util.logging.Logger.getLogger(MqttSnClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return properties;
     }
     
     //with QOS=2, retained=false
