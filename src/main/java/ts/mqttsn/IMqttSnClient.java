@@ -13,4 +13,8 @@ public interface IMqttSnClient
 {
     public void ClientStart();
     public void ClientStop();
+    
+    public void Publish(String topic, byte[] payload,int qos, boolean retained);
+    public void Subscribe(String topicFilter, int qos);
+    
 }
