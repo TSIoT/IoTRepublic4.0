@@ -33,16 +33,19 @@ public class MqttSnClient implements MqttCallback,IMqttSnClient
 
     private static final Logger LOG = LoggerFactory.getLogger(MqttSnClient.class);
 
-    private final ConfigurationParser parser = new ConfigurationParser();
+    //private final ConfigurationParser parser = new ConfigurationParser();
     private final String defaultConfigFilePath = "/config/MqttsnGateway.config";
+    private final String defaultTopicTablePath = "/config/TopicIdTable.config";
 
     private MqttClient mqttClient;
 
     private Properties m_properties = null;
+    private Properties topicProperties = null;
 
     public MqttSnClient()
     {        
         this.m_properties=this.readConfigFile(this.defaultConfigFilePath);
+        this.topicProperties=this.readConfigFile(this.defaultTopicTablePath);
         //this.initGatewayFromConfigFile();
     }
 
@@ -78,6 +81,31 @@ public class MqttSnClient implements MqttCallback,IMqttSnClient
     {
         this.DisconnectFromBroker();
     }
+    
+    @Override //IMqttSnClient
+    public void Publish(String topic, byte[] payload,int qos, boolean retained)
+    {
+        try
+        {
+            this.mqttClient.publish(topic, payload,qos, retained);
+        } catch (MqttException ex)
+        {
+            LOG.error(ex.toString());
+        }                
+    }
+    
+    @Override //IMqttSnClient
+    public void Subscribe(String topic, int qos)
+    {
+        try
+        {
+            this.mqttClient.subscribe(topic, qos);
+        } catch (MqttException ex)
+        {
+            LOG.error(ex.toString());
+            //java.util.logging.Logger.getLogger(MqttSnClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }    
 
     public void ConnectToBroker()
     {
@@ -132,7 +160,15 @@ public class MqttSnClient implements MqttCallback,IMqttSnClient
         }
     }
     
-    protected Properties readConfigFile(String filePath)
+    public String findTopicById(int id)
+    {
+        String topic="";
+        topic=this.topicProperties.getProperty(String.valueOf(id));
+        
+        return topic;
+    }
+    
+    protected final Properties readConfigFile(String filePath)
     {
         ConfigurationParser parser = new ConfigurationParser();
         Properties properties=null;
@@ -174,18 +210,6 @@ public class MqttSnClient implements MqttCallback,IMqttSnClient
         }
     }
 
-    private void initGatewayFromConfigFile()
-    {
-        try
-        {
-            String currentPath = System.getProperty("user.dir");
-            File configFile = new File(currentPath + defaultConfigFilePath);
-            this.parser.parse(configFile);
-            this.m_properties = this.parser.getProperties();
-        } catch (ParseException ex)
-        {
-            java.util.logging.Logger.getLogger(MqttSnClient.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+    
 
 }

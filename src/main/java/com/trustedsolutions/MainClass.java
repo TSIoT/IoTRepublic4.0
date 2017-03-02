@@ -11,6 +11,7 @@ import ts.mqttsn.IMqttSnClient;
 import ts.mqttsn.MqttSnClient;
 import ts.mqttsn.XBeeAtClient;
 
+import ts.mqttsn.MqttSnClient;
 
 /**
  *
@@ -20,7 +21,12 @@ public class MainClass
 {
 
     public static void main(String args[])
-    {        
+    {     
+        MqttSnClient client =new MqttSnClient();
+        client.ClientStart();
+        
+        
+        /*
         IMqttSnClient xbeeClient=new XBeeAtClient();
         xbeeClient.ClientStart();
         Runtime.getRuntime().addShutdownHook(new Thread() 
@@ -31,6 +37,7 @@ public class MainClass
                 xbeeClient.ClientStop();
             }
         });
+        */
         
     }
 }
