@@ -125,6 +125,13 @@ public class SerialTool
             //java.util.logging.Logger.getLogger(SerialTool.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    public void stopListerSerial()
+    {
+        SerialPort serialPort = (SerialPort) this.commPort;
+        serialPort.notifyOnDataAvailable(false);
+        serialPort.removeEventListener();                
+    }
 
     private class SerialListener implements SerialPortEventListener
     {

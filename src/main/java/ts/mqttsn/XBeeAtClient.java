@@ -27,8 +27,7 @@ public class XBeeAtClient extends MqttSnClient
 {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(XBeeAtClient.class);
     
-    private Properties m_properties = null;
-    
+    private Properties m_properties = null;    
     private final SerialTool serialTool=new SerialTool();
     private SerialReader serialReader;
 
@@ -50,30 +49,20 @@ public class XBeeAtClient extends MqttSnClient
         
         super.ClientStart();
         this.serialTool.openComport(portName, baudRate);
+        this.initXBee();
         this.serialTool.startListerSerial(new SerialReader(this));
-        /*
-        this.openComport();
 
-        if (this.isComportOpened && this.initXBee())
-        {
-            this.serialReader = new SerialReader(this.in, this);
-            new Thread(this.serialReader).start();
-        }
-        */
     }
 
     @Override //MqttSnClient
     public void ClientStop()
     {
         LOG.info("XBeeAT Client stop");
-
-
+        this.serialTool.stopListerSerial();
+        this.serialTool.closeComport();                
         super.ClientStop();               
     }
-    
-    
-
-
+        
     private boolean initXBee()
     {
         
@@ -116,13 +105,16 @@ public class XBeeAtClient extends MqttSnClient
         @Override
         public void dataReceived(byte[] recvData)
         {
-            try
+            try                                                
             {
                 MqttSnPackage pack=new MqttSnPackage();
                 pack.parseRecvData(recvData);
-                LOG.debug(new String(pack.payload));
+                String topic=this.xbeeAtClient.findTopicById(pack.topicId);
+                this.xbeeAtClient.Publish(topic, pack.payload, 1, true);
+                LOG.info("Publish topic:"+topic+",payload:"+new String(pack.payload));
+                //LOG.debug(new String(pack.payload));
                 //LOG.info("Recv data"+new String(recvData));
-            } catch (MqttSnPackage.ParseException ex)
+            } catch (MqttSnPackage.ParseException | NullPointerException ex)
             {
                 LOG.error(ex.toString());
             }

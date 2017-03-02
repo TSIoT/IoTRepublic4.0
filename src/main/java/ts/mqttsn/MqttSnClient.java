@@ -74,8 +74,7 @@ public class MqttSnClient implements MqttCallback,IMqttSnClient
     {
         this.ConnectToBroker();
     }
-    
-    
+        
     @Override //IMqttSnClient
     public void ClientStop()
     {
@@ -159,34 +158,7 @@ public class MqttSnClient implements MqttCallback,IMqttSnClient
             }
         }
     }
-    
-    public String findTopicById(int id)
-    {
-        String topic="";
-        topic=this.topicProperties.getProperty(String.valueOf(id));
-        
-        return topic;
-    }
-    
-    protected final Properties readConfigFile(String filePath)
-    {
-        ConfigurationParser parser = new ConfigurationParser();
-        Properties properties=null;
-        try
-        {
-            String currentPath = System.getProperty("user.dir");
-            File configFile = new File(currentPath +filePath);
-            parser.parse(configFile);
-            properties = parser.getProperties();
-        } catch (ParseException ex)
-        {
-            LOG.error(ex.toString());
-            //java.util.logging.Logger.getLogger(MqttSnClient.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        return properties;
-    }
-    
+            
     //with QOS=2, retained=false
     public void SimplePublish(String topic, String message) 
     {        
@@ -208,6 +180,38 @@ public class MqttSnClient implements MqttCallback,IMqttSnClient
         {
             LOG.error(ex.toString());
         }
+    }
+    
+    protected final String findTopicById(int id) throws NullPointerException
+    {
+        String topic;
+        topic=this.topicProperties.getProperty(String.valueOf(id));
+        if(topic==null)
+        {
+            throw new NullPointerException("Cannot found TopicID:"+id);
+            //LOG.error("Cannot found TopicID:"+id);
+            //throw new NullPointerException();
+        }
+        return topic;
+    }
+    
+    protected final Properties readConfigFile(String filePath)
+    {
+        ConfigurationParser parser = new ConfigurationParser();
+        Properties properties=null;
+        try
+        {
+            String currentPath = System.getProperty("user.dir");
+            File configFile = new File(currentPath +filePath);
+            parser.parse(configFile);
+            properties = parser.getProperties();
+        } catch (ParseException ex)
+        {
+            LOG.error(ex.toString());
+            //java.util.logging.Logger.getLogger(MqttSnClient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return properties;
     }
 
     

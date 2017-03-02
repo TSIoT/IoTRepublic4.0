@@ -5,6 +5,7 @@
  */
 package com.trustedsolutions;
 
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import ts.mqttsn.IMqttSnClient;
@@ -21,23 +22,30 @@ public class MainClass
 {
 
     public static void main(String args[])
-    {     
-        MqttSnClient client =new MqttSnClient();
-        client.ClientStart();
-        
-        
-        /*
+    {            
         IMqttSnClient xbeeClient=new XBeeAtClient();
         xbeeClient.ClientStart();
-        Runtime.getRuntime().addShutdownHook(new Thread() 
+        /*
+        try
         {
-            @Override
-            public void run() 
-            {
-                xbeeClient.ClientStop();
-            }
-        });
+            int input=System.in.read();
+        } catch (IOException ex)
+        {
+            Logger.getLogger(MainClass.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        xbeeClient.ClientStop();
         */
+                    
+        Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+        @Override
+        public void run() 
+        {
+        xbeeClient.ClientStop();
+        }
+        });
+
+        
         
     }
 }
