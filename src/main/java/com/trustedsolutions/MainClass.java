@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import ts.mqttsn.IMqttSnClient;
 import ts.mqttsn.MqttSnClient;
 import ts.mqttsn.XBeeAtClient;
+import ts.mqttsn.LoRaNodeClient;
 
 import ts.mqttsn.MqttSnClient;
 
@@ -22,9 +23,12 @@ public class MainClass
 {
 
     public static void main(String args[])
-    {            
-        IMqttSnClient xbeeClient=new XBeeAtClient();
-        xbeeClient.ClientStart();
+    {    
+        IMqttSnClient loraNodeClient=new LoRaNodeClient();
+        loraNodeClient.ClientStart();
+        
+        //IMqttSnClient xbeeClient=new XBeeAtClient();
+        //xbeeClient.ClientStart();
         /*
         try
         {
@@ -41,7 +45,7 @@ public class MainClass
         @Override
         public void run() 
         {
-        xbeeClient.ClientStop();
+        loraNodeClient.ClientStop();
         }
         });
 

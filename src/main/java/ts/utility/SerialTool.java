@@ -36,6 +36,7 @@ public class SerialTool
 
     private static final Logger LOG = LoggerFactory.getLogger(SerialTool.class);
 
+    private SerialListener serialListener;
     private CommPort commPort;
     private InputStream in;
     private OutputStream out;
@@ -56,7 +57,7 @@ public class SerialTool
 
                 this.in = serialPort.getInputStream();
                 this.out = serialPort.getOutputStream();
-                LOG.debug(portName + " is opened with baudrate:" + baudRate);
+                LOG.info(portName + " is opened with baudrate:" + baudRate);
             }
             this.isOpened = true;
 
@@ -85,24 +86,29 @@ public class SerialTool
     public byte[] readSerial(long timeOut)
     {
         List<Byte> recvArray = new ArrayList<>(1024);
-        long startTime = System.currentTimeMillis();
-        int temp;
+        byte[] buffer = new byte[1024];
+        long startTime = System.currentTimeMillis();        
+        int len;
         while (System.currentTimeMillis() - startTime < timeOut)
         {
             try
-            {
-                temp = this.in.read();
-                if (temp > -1)
-                {
-                    recvArray.add((byte) temp);
-                }
-            } catch (IOException ex)
+            {                                                  
+                len= this.in.available();
+                if(len>0)
+                {                                        
+                    for(int i=0;i<len;i++)
+                    {                        
+                        recvArray.add((byte)this.in.read());
+                    }
+                }                              
+            } 
+            catch (IOException ex)
             {
                 LOG.error(ex.toString());
                 //Logger.getLogger(XBeeAtClient.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-
+        
         byte[] array = new byte[recvArray.size()];
         for (int i = 0; i < recvArray.size(); i++)
         {
@@ -112,27 +118,88 @@ public class SerialTool
         return array;
     }
 
-    public void startListerSerial(ISerialListener listener)
+    public void writeSerial(byte[] buf, int length)
     {
         try
         {
-            SerialPort serialPort = (SerialPort) this.commPort;
-            serialPort.addEventListener(new SerialListener(in,listener));
-            serialPort.notifyOnDataAvailable(true);
-        } catch (TooManyListenersException ex)
+            this.out.write(buf, 0, length);
+        } catch (IOException ex)
         {
             LOG.error(ex.toString());
             //java.util.logging.Logger.getLogger(SerialTool.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public void stopListerSerial()
+
+    public void startListerSerial(ISerialListener listener)
     {
         SerialPort serialPort = (SerialPort) this.commPort;
-        serialPort.notifyOnDataAvailable(false);
-        serialPort.removeEventListener();                
+        this.serialListener = new SerialListener(this.in, listener);
+        (new Thread(this.serialListener)).start();
+        //serialPort.addEventListener(new SerialListener(in, listener));
+        //serialPort.notifyOnDataAvailable(true);
     }
 
+    public void stopListerSerial()
+    {
+        this.serialListener.StopListener();
+        //SerialPort serialPort = (SerialPort) this.commPort;
+        //serialPort.notifyOnDataAvailable(false);
+        //serialPort.removeEventListener();
+    }
+
+    private class SerialListener implements Runnable
+    {
+        private final int maxRecvSize=1024;
+        private ISerialListener listener;
+        private InputStream in;
+
+        private volatile boolean running = true;
+
+        public SerialListener(InputStream in, ISerialListener listener)
+        {
+            this.in = in;
+            this.listener = listener;
+        }
+
+        @Override
+        public void run()
+        {            
+            byte[] buffer = new byte[this.maxRecvSize];
+            int len;            
+            try
+            {                
+                while (this.running)
+                {                               
+                    if ((len = this.in.read(buffer)) > 0)
+                    {    
+                        //LOG.info("Recv len:"+len);
+                        byte[] bufferCopiy = new byte[len];
+                        for(int i=0;i<len;i++)
+                        {
+                            bufferCopiy[i]=(byte)buffer[i];
+                        }
+                        //System.arraycopy(buffer, 0, bufferCopiy, 0, len);                                                
+                        this.listener.dataReceived(bufferCopiy);
+                    }           
+                    //LOG.info("in loop");
+                }
+
+            } catch (IOException ex)
+            {
+                LOG.error(ex.toString());
+                
+            }            
+            LOG.info("SerialListener closed safely");
+        }
+
+        public void StopListener()
+        {
+            this.running = false;
+        }
+
+    }
+
+    /*
     private class SerialListener implements SerialPortEventListener
     {
         private ISerialListener listener;
@@ -179,5 +246,5 @@ public class SerialTool
 
         }
     }
-
+     */
 }
