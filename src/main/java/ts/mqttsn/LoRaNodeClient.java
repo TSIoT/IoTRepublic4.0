@@ -5,10 +5,12 @@
  */
 package ts.mqttsn;
 
+import java.util.ArrayList;
 import java.util.Properties;
 import org.slf4j.LoggerFactory;
 import ts.utility.SerialTool;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
@@ -194,9 +196,17 @@ public class LoRaNodeClient extends MqttSnClient
                     String result_str = new String(result);
                     if (result_str.equals("OK"))
                     {
-                        result = this.loRaNodeClient.serialTool.readSerial(this.responseTimeout);
-                        LOG.info(entry.getKey() + "OK:" + new String(result));
-                        this.mqttPackageTransfer(result);
+                        //result = this.loRaNodeClient.serialTool.readSerial(this.responseTimeout);
+                        //LOG.info(entry.getKey() + "OK:" + new String(result));
+                        //this.mqttPackageTransfer(result);                                                
+
+                        List<Byte> response = this.loRaNodeClient.serialTool.readSerial_List(this.responseTimeout);
+                        LOG.info(entry.getKey() + "OK:" + response.toString());
+                        if (response.size() > 0)
+                        {
+                            this.mqttPackageTransfer(response);
+                        }
+
                     } else
                     {
                         LOG.error("Polling failed: cannot got OK for the sending command:[" + result_str + "]");
@@ -211,12 +221,50 @@ public class LoRaNodeClient extends MqttSnClient
             {
                 try
                 {
+                    //convert into list
+                    List<Byte> byteList = new ArrayList<>(recvBuffer.length);
+
+                    for (byte temp : recvBuffer)
+                    {
+                        byteList.add(temp);
+                    }
+
                     MqttSnPackage pack = new MqttSnPackage();
 
                     pack.parseRecvData(recvBuffer);
                     String topic = this.loRaNodeClient.findTopicById(pack.topicId);
                     this.loRaNodeClient.Publish(topic, pack.payload, 1, true);
                     LOG.info("Publish topic:" + topic + ",payload:" + new String(pack.payload));
+                } catch (MqttSnPackage.ParseException ex)
+                {
+                    Logger.getLogger(LoRaNodeClient.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+        }
+
+        private void mqttPackageTransfer(List<Byte> recvBuffer)
+        {
+            if (MqttSnPackage.isValidPackage(recvBuffer))
+            {
+                try
+                {
+                    do
+                    {
+                        MqttSnPackage pack = new MqttSnPackage();
+                        int packLen = (int) recvBuffer.get(0);
+                        byte[] recvPack = new byte[packLen];
+                        for (int i = 0; i < packLen; i++)
+                        {
+                            recvPack[i] = recvBuffer.get(0);
+                            recvBuffer.remove(0);
+                        }
+                        pack.parseRecvData(recvPack);
+                        String topic = this.loRaNodeClient.findTopicById(pack.topicId);
+                        this.loRaNodeClient.Publish(topic, pack.payload, 2, true);
+                        LOG.info("Publish topic:" + topic + ",payload:" + new String(pack.payload));
+                    } while (MqttSnPackage.isValidPackage(recvBuffer));
+
                 } catch (MqttSnPackage.ParseException ex)
                 {
                     Logger.getLogger(LoRaNodeClient.class.getName()).log(Level.SEVERE, null, ex);
