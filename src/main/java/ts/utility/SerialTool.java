@@ -101,12 +101,13 @@ public class SerialTool
                         recvArray.add((byte)this.in.read());
                     }
                 }                              
+                Thread.sleep(10);
             } 
-            catch (IOException ex)
+            catch (IOException|InterruptedException ex)
             {
                 LOG.error(ex.toString());
                 //Logger.getLogger(XBeeAtClient.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            } 
         }
         
         byte[] array = new byte[recvArray.size()];
@@ -116,6 +117,37 @@ public class SerialTool
         }
 
         return array;
+    }
+    
+    public List<Byte> readSerial_List(long timeOut)
+    {
+        List<Byte> recvArray = new ArrayList<>(1024);
+        //byte[] buffer = new byte[1024];
+        long startTime = System.currentTimeMillis();        
+        int len;
+        while (System.currentTimeMillis() - startTime < timeOut)
+        {
+            try
+            {                                                  
+                len= this.in.available();
+                if(len>0)
+                {                                        
+                    for(int i=0;i<len;i++)
+                    {                        
+                        recvArray.add((byte)this.in.read());
+                    }
+                }                              
+                Thread.sleep(10);
+            } 
+            catch (IOException|InterruptedException ex)
+            {
+                LOG.error(ex.toString());
+                //Logger.getLogger(XBeeAtClient.class.getName()).log(Level.SEVERE, null, ex);
+            } 
+        }
+        
+
+        return recvArray;
     }
 
     public void writeSerial(byte[] buf, int length)

@@ -23,7 +23,6 @@ import ts.utility.ISerialListener;
  */
 public class XBeeAtClient extends MqttSnClient
 {
-
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(XBeeAtClient.class);
 
     private Properties m_properties = null;

@@ -154,7 +154,8 @@ public class MqttSnClient implements MqttCallback,IMqttSnClient
                 this.mqttClient.disconnect();
             } catch (MqttException ex)
             {
-                java.util.logging.Logger.getLogger(MqttSnClient.class.getName()).log(Level.SEVERE, null, ex);
+                LOG.error(ex.toString());
+                //java.util.logging.Logger.getLogger(MqttSnClient.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

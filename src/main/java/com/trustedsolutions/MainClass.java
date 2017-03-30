@@ -12,8 +12,10 @@ import ts.mqttsn.IMqttSnClient;
 import ts.mqttsn.MqttSnClient;
 import ts.mqttsn.XBeeAtClient;
 import ts.mqttsn.LoRaNodeClient;
-
+import ts.ruler.MongoDBUploader;
 import ts.mqttsn.MqttSnClient;
+
+
 
 /**
  *
@@ -27,6 +29,9 @@ public class MainClass
         IMqttSnClient loraNodeClient=new LoRaNodeClient();
         loraNodeClient.ClientStart();
         
+        MongoDBUploader mongoUploader=new MongoDBUploader();
+        mongoUploader.Start();
+        
         //IMqttSnClient xbeeClient=new XBeeAtClient();
         //xbeeClient.ClientStart();
         /*
@@ -39,13 +44,13 @@ public class MainClass
         }
         xbeeClient.ClientStop();
         */
-                    
+          
         Runtime.getRuntime().addShutdownHook(new Thread()
         {
         @Override
         public void run() 
         {
-        loraNodeClient.ClientStop();
+        //loraNodeClient.ClientStop();
         }
         });
 
