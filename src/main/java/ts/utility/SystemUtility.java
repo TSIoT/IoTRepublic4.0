@@ -9,7 +9,7 @@ import java.io.File;
 import java.text.ParseException;
 import java.util.Properties;
 import org.slf4j.LoggerFactory;
-import ts.ruler.MongoDBUploader;
+import ts.service.MongoDBUploader;
 
 /**
  *

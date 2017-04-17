@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ts.utility.SystemUtility;
 
 /**
  *
@@ -29,16 +30,18 @@ public class LoRaNodeClient extends MqttSnClient
     private final SerialTool serialTool = new SerialTool();
 
     private HashMap<String, Boolean> slaveAddressMap;
-    private final String defaultConfigFilePath = "/config/LoRaNodeClient.config";
+    //private final String defaultConfigFilePath = "/config/LoRaNodeClient.config";
+    private final String defaultConfigFilePath = "/config/IoT.config";
     private final int responseOkTimeout = 100;
     private NodePolling nodePolling;
 
     public LoRaNodeClient()
     {
-        this.m_properties = super.readConfigFile(this.defaultConfigFilePath);
+        super.setNodeName("LoRaNodeClient");
+        this.m_properties = SystemUtility.readConfigFile(this.defaultConfigFilePath);
         this.slaveAddressMap = new HashMap<>(20);
         //get all slave address in to this.slaveAddressMap
-        String slaveNodes = this.m_properties.getProperty("slaveNodes");
+        String slaveNodes = this.m_properties.getProperty("LoRaNodeClientSlaveNodes");
         String[] slaveAddresses = slaveNodes.split(",");
         for (String address : slaveAddresses)
         {
@@ -47,14 +50,14 @@ public class LoRaNodeClient extends MqttSnClient
     }
 
     @Override //MqttSnClient
-    public void ClientStart()
+    public void Start()
     {
-        super.ClientStart();
+        super.Start();
 
         LOG.info("LoRa-Node Client start");
 
-        String portName = this.m_properties.getProperty("portName");
-        String baudRate = this.m_properties.getProperty("baudRate");
+        String portName = this.m_properties.getProperty("LoRaNodeClientPortName");
+        String baudRate = this.m_properties.getProperty("LoRaNodeClientBaudRate");
 
         this.serialTool.openComport(portName, baudRate);
         this.initLoRaNode();
@@ -63,12 +66,12 @@ public class LoRaNodeClient extends MqttSnClient
     }
 
     @Override //MqttSnClient
-    public void ClientStop()
+    public void Stop()
     {
         LOG.info("LoRa-Node Client stop");
         this.nodePolling.StopRunning();
         this.serialTool.closeComport();
-        super.ClientStop();
+        super.Stop();
     }
 
     private void initLoRaNode()
@@ -79,7 +82,7 @@ public class LoRaNodeClient extends MqttSnClient
         cmd = "LoraMode MASTER\r";
         this.sendAtCommand(cmd);
 
-        if (this.m_properties.getProperty("needReJoin").equals("YES"))
+        if (this.m_properties.getProperty("LoRaNodeClientNeedReJoin").equals("YES"))
         {
             this.slaveAddressMap.entrySet().forEach((entry) ->
             {
@@ -143,9 +146,9 @@ public class LoRaNodeClient extends MqttSnClient
         public NodePolling(LoRaNodeClient loRaNodeClient)
         {
             this.loRaNodeClient = loRaNodeClient;
-            String responseTimeout_str = this.loRaNodeClient.m_properties.getProperty("responseTimeout");
+            String responseTimeout_str = this.loRaNodeClient.m_properties.getProperty("LoRaNodeClientResponseTimeout");
             this.responseTimeout = Integer.valueOf(responseTimeout_str);
-            String needReJoin = this.loRaNodeClient.m_properties.getProperty("needReJoin");
+            String needReJoin = this.loRaNodeClient.m_properties.getProperty("LoRaNodeClientNeedReJoin");
             if (needReJoin.equals("YES"))
             {
                 this.needReJoin = true;
@@ -154,7 +157,7 @@ public class LoRaNodeClient extends MqttSnClient
                 this.needReJoin = false;
             } else
             {
-                LOG.error("propertie: NeedReJoin setting error, set to default NO");
+                LOG.error("propertie: LoRaNodeClientNeedReJoin setting error, set to default NO");
                 this.needReJoin = false;
             }
         }
@@ -233,7 +236,7 @@ public class LoRaNodeClient extends MqttSnClient
 
                     pack.parseRecvData(recvBuffer);
                     String topic = this.loRaNodeClient.findTopicById(pack.topicId);
-                    this.loRaNodeClient.Publish(topic, pack.payload, 1, true);
+                    this.loRaNodeClient.publish(topic, pack.payload, 1, true);
                     LOG.info("Publish topic:" + topic + ",payload:" + new String(pack.payload));
                 } catch (MqttSnPackage.ParseException ex)
                 {
@@ -261,7 +264,7 @@ public class LoRaNodeClient extends MqttSnClient
                         }
                         pack.parseRecvData(recvPack);
                         String topic = this.loRaNodeClient.findTopicById(pack.topicId);
-                        this.loRaNodeClient.Publish(topic, pack.payload, 1, true);
+                        this.loRaNodeClient.publish(topic, pack.payload, 1, true);
                         LOG.info("Publish topic:" + topic + ",payload:" + new String(pack.payload));
                     } while (MqttSnPackage.isValidPackage(recvBuffer));
 
@@ -270,7 +273,6 @@ public class LoRaNodeClient extends MqttSnClient
                     Logger.getLogger(LoRaNodeClient.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-
         }
 
         //private

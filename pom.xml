@@ -10,7 +10,6 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <mainClass>com.trustedsolutions.MainClass</mainClass>
-
     </properties>
     <repositories>
         <repository>
@@ -43,8 +42,7 @@
             <groupId>org.rxtx</groupId>
             <artifactId>rxtxcomm</artifactId>
             <version>2.2pre2</version>
-        </dependency>
-        
+        </dependency>        
         <!--
     <dependency>
         <groupId>commons-io</groupId>

@@ -5,7 +5,7 @@
  */
 package com.trustedsolutions;
 
-import ts.ruler.PostUploader;
+import ts.service.PostUploader;
 
 /**
  *

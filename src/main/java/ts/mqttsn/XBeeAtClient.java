@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 
 import org.slf4j.LoggerFactory;
 import ts.utility.ISerialListener;
+import ts.utility.SystemUtility;
 
 /**
  *
@@ -34,18 +35,18 @@ public class XBeeAtClient extends MqttSnClient
     //private CommPort commPort;
     public XBeeAtClient()
     {
-        this.m_properties = super.readConfigFile(this.defaultConfigFilePath);
+        this.m_properties = SystemUtility.readConfigFile(this.defaultConfigFilePath);
     }
 
     @Override //MqttSnClient
-    public void ClientStart()
+    public void Start()
     {
         LOG.info("XBeeAT Client start");
 
         String portName = this.m_properties.getProperty("portName");
         String baudRate = this.m_properties.getProperty("baudRate");
 
-        super.ClientStart();
+        super.Start();
         this.serialTool.openComport(portName, baudRate);
         //this.initXBee();
         this.serialTool.startListerSerial(new SerialReader(this));
@@ -53,12 +54,12 @@ public class XBeeAtClient extends MqttSnClient
     }
 
     @Override //MqttSnClient
-    public void ClientStop()
+    public void Stop()
     {
         LOG.info("XBeeAT Client stop");
         this.serialTool.stopListerSerial();
         this.serialTool.closeComport();
-        super.ClientStop();
+        super.Stop();
     }
 
     private boolean initXBee()
@@ -147,7 +148,7 @@ public class XBeeAtClient extends MqttSnClient
 
                         pack.parseRecvData(recvPack);
                         String topic = this.xbeeAtClient.findTopicById(pack.topicId);
-                        this.xbeeAtClient.Publish(topic, pack.payload, 1, true);
+                        this.xbeeAtClient.publish(topic, pack.payload, 1, true);
                         LOG.info("Publish topic:" + topic + ",payload:" + new String(pack.payload));
                     } while (MqttSnPackage.isValidPackage(recvBuffer));
                 } else

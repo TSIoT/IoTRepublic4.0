@@ -5,6 +5,9 @@
  */
 package ts.mqttsn;
 
+import ts.iot.IMqttNode;
+import ts.iot.MqttNode;
+
 import java.io.File;
 import java.text.ParseException;
 import java.util.Properties;
@@ -22,188 +25,70 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttTopic;
 
 import ts.utility.ConfigurationParser;
+import ts.utility.SystemUtility;
 
 /**
  *
  * @author loki.chuang
  */
-public class MqttSnClient implements MqttCallback,IMqttSnClient
+//public class MqttSnClient  implements MqttCallback,IMqttNode
+public class MqttSnClient extends MqttNode
 {
-    protected String mqttSnName = "Default SN";
+    //protected String mqttSnName = "Default SN";
 
     private static final Logger LOG = LoggerFactory.getLogger(MqttSnClient.class);
 
     //private final ConfigurationParser parser = new ConfigurationParser();
-    private final String defaultConfigFilePath = "/config/MqttsnGateway.config";
+    private final String defaultConfigFilePath = "/config/IoT.config";
     private final String defaultTopicTablePath = "/config/TopicIdTable.config";
 
-    private MqttClient mqttClient;
-
+    //private MqttClient mqttClient;
     private Properties m_properties = null;
     private Properties topicProperties = null;
 
     public MqttSnClient()
-    {        
-        this.m_properties=this.readConfigFile(this.defaultConfigFilePath);
-        this.topicProperties=this.readConfigFile(this.defaultTopicTablePath);
+    {
+        //this.m_properties = this.readConfigFile(this.defaultConfigFilePath);
+        this.m_properties = SystemUtility.readConfigFile(this.defaultConfigFilePath);
+        this.topicProperties = SystemUtility.readConfigFile(this.defaultTopicTablePath);
         //this.initGatewayFromConfigFile();
     }
 
-    @Override //MqttCallback
-    public void connectionLost(Throwable thrwbl)
+    @Override //MqttNode
+    public void Start()
     {
-        LOG.info("Lost connection from broker:"+this.m_properties.getProperty("brokerIp"));
-    }
-    
-    @Override //MqttCallback
-    public void deliveryComplete(IMqttDeliveryToken imdt)
-    {
-        
-    }
-    
-    @Override //MqttCallback
-    public void messageArrived(String topic, MqttMessage mm) throws Exception
-    {
-        String msg=new String(mm.getPayload());
-        LOG.info(msg);
-        //LOG.debug(topic+":"+msg);
-    }
-    
-    @Override //IMqttSnClient
-    public void ClientStart()
-    {
-        this.ConnectToBroker();
-    }
-        
-    @Override //IMqttSnClient
-    public void ClientStop()
-    {
-        this.DisconnectFromBroker();
-    }
-    
-    @Override //IMqttSnClient
-    public void Publish(String topic, byte[] payload,int qos, boolean retained)
-    {
-        try
-        {
-            this.mqttClient.publish(topic, payload,qos, retained);
-        } catch (MqttException ex)
-        {
-            LOG.error(ex.toString());
-        }                
-    }
-    
-    @Override //IMqttSnClient
-    public void Subscribe(String topic, int qos)
-    {
-        try
-        {
-            this.mqttClient.subscribe(topic, qos);
-        } catch (MqttException ex)
-        {
-            LOG.error(ex.toString());
-            //java.util.logging.Logger.getLogger(MqttSnClient.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }    
-
-    public void ConnectToBroker()
-    {
-        boolean isAnonymous;
-        MqttConnectOptions mqttOption = new MqttConnectOptions();
-        
-
         String brokerIp = this.m_properties.getProperty("brokerIp");
         String brokerPort = this.m_properties.getProperty("brokerPort");
         String userId = this.m_properties.getProperty("userId");
         String userPassword = this.m_properties.getProperty("userPassword");
-
-        if (userId.length() > 0 && userPassword.length() > 0)
-        {
-            isAnonymous = false;
-            mqttOption.setUserName(userId);
-            mqttOption.setPassword(userPassword.toCharArray());
-        }
-        else
-        {
-            isAnonymous = true;
-        }
-
-        try
-        {
-            //this.mqttClient=new MqttClient("tcp://"+brokerIp+":"brokerPort, this.mqttSnName);
-            this.mqttClient = new MqttClient("tcp://" + brokerIp + ":" + brokerPort, "Test");           
-            this.mqttClient.setCallback(this);
-            
-            
-            
-            this.mqttClient.connect(mqttOption);
-            
-        } catch (MqttException ex)
-        {
-            LOG.error(ex.toString());
-        }
-
+        super.connectToBroker(brokerIp, brokerPort, userId, userPassword);     
     }
-    
-    public void DisconnectFromBroker()
+
+    @Override //MqttNode
+    public void Stop()
     {
-        if(this.mqttClient.isConnected())
-        {
-            try
-            {
-                this.mqttClient.disconnect();
-            } catch (MqttException ex)
-            {
-                LOG.error(ex.toString());
-                //java.util.logging.Logger.getLogger(MqttSnClient.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        super.disconnectFromBroker();        
     }
-            
-    //with QOS=2, retained=false
-    public void SimplePublish(String topic, String message) 
-    {        
-        try
-        {                        
-            this.mqttClient.publish(topic,message.getBytes(),2,false );
-        } catch (MqttException ex)
-        {
-            LOG.error(ex.toString());            
-        }
-    }
-    
-    public void SimpleSubscribe(String topic)
-    {
-        try
-        {
-            this.mqttClient.subscribe(topic);
-        } catch (MqttException ex)
-        {
-            LOG.error(ex.toString());
-        }
-    }
-    
+
     protected final String findTopicById(int id) throws NullPointerException
     {
         String topic;
-        topic=this.topicProperties.getProperty(String.valueOf(id));
-        if(topic==null)
+        topic = this.topicProperties.getProperty(String.valueOf(id));
+        if (topic == null)
         {
-            throw new NullPointerException("Cannot found TopicID:"+id);
-            //LOG.error("Cannot found TopicID:"+id);
-            //throw new NullPointerException();
+            throw new NullPointerException("Cannot found TopicID:" + id);           
         }
         return topic;
     }
-    
+/*
     protected final Properties readConfigFile(String filePath)
     {
         ConfigurationParser parser = new ConfigurationParser();
-        Properties properties=null;
+        Properties properties = null;
         try
         {
             String currentPath = System.getProperty("user.dir");
-            File configFile = new File(currentPath +filePath);
+            File configFile = new File(currentPath + filePath);
             parser.parse(configFile);
             properties = parser.getProperties();
         } catch (ParseException ex)
@@ -211,10 +96,8 @@ public class MqttSnClient implements MqttCallback,IMqttSnClient
             LOG.error(ex.toString());
             //java.util.logging.Logger.getLogger(MqttSnClient.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return properties;
     }
-
-    
-
+    */
 }
