@@ -4,85 +4,83 @@
  * and open the template in the editor.
  */
 package com.trustedsolutions;
-
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import ts.mqttsn.MqttSnClient;
-import ts.mqttsn.XBeeAtClient;
+
 import ts.mqttsn.LoRaNodeClient;
 import ts.service.MongoDBUploader;
-import ts.mqttsn.MqttSnClient;
+
 
 import ts.utility.SystemUtility;
+import ts.iot.IMqttNode;
+import ts.iot.MqttBroker;
 
 
-/**
- *
- * @author loki.chuang
- */
-import ts.iot.IMqttNode;/**
- *
- * @author loki.chuang
- */
+
 public class MainClass
 {
-    private final String defaultConfigFilePath = "/config/IoT.config";        
-    
+
+    private final String defaultConfigFilePath = "/config/IoT.config";
+
     public static void main(String args[])
     {
-        MainClass mainClass=new MainClass();
-        mainClass.MainProcess();             
+        MainClass mainClass = new MainClass();
+        mainClass.MainProcess();
     }
-    
+
     public void MainProcess()
     {
-        Terminate terminteThread=null;
+        List<IMqttNode> nodes = new ArrayList<IMqttNode>();
+        Terminate terminteThread = null;
         Properties m_properties = null;
-        IMqttNode loraNodeClient = null;
-        MongoDBUploader mongoUploader = null;                
-
+          
         m_properties = SystemUtility.readConfigFile(this.defaultConfigFilePath);
+        
+        if (m_properties.getProperty("MQTTBrokerEnable").equals("YES"))
+        {            
+            nodes.add(new MqttBroker());         
+        }
+        
         if (m_properties.getProperty("LoRaNodeClientEnable").equals("YES"))
-        {
-            loraNodeClient = new LoRaNodeClient();
-            loraNodeClient.Start();
+        {            
+            nodes.add(new LoRaNodeClient());         
         }
 
         if (m_properties.getProperty("MongoDBUploaderEnable").equals("YES"))
-        {
-            mongoUploader = new MongoDBUploader();
-            mongoUploader.Start();
+        {            
+            nodes.add(new MongoDBUploader());         
         }
-        
-        terminteThread=new Terminate(loraNodeClient,mongoUploader);
-        
+
+        terminteThread = new Terminate(nodes);
+
         Runtime.getRuntime().addShutdownHook(terminteThread);
     }
     
-    
-     //class Terminate implements Runnable 
+    //class Terminate implements Runnable 
     class Terminate extends Thread
-     {
-        IMqttNode loraNodeClient = null;
-        MongoDBUploader mongoUploader = null;
-        
-        public Terminate(IMqttNode loraNodeClient,MongoDBUploader mongoUploader)
+    {
+        List<IMqttNode> mqttNodes;
+
+        public Terminate(List<IMqttNode> nodes)
         {
-            this.loraNodeClient=loraNodeClient;
-            this.mongoUploader=mongoUploader;
+            this.mqttNodes = nodes;
+            this.mqttNodes.forEach((node) ->
+            {
+                node.Start();
+                
+            });
         }
-        
+
+
         @Override
         public void run()
         {
-            if(this.mongoUploader!=null)
-                this.mongoUploader.Stop();
-            
-            if(this.loraNodeClient!=null)
-                this.loraNodeClient.Stop();
+            this.mqttNodes.forEach((node) ->
+            {
+                node.Stop();
+            });
         }
-         
-     }
+
+    }
 }

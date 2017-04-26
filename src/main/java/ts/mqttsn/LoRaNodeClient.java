@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import ts.utility.SerialTool;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,7 +22,6 @@ import ts.utility.SystemUtility;
  */
 public class LoRaNodeClient extends MqttSnClient
 {
-
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(LoRaNodeClient.class);
 
     private Properties m_properties = null;
@@ -137,7 +135,6 @@ public class LoRaNodeClient extends MqttSnClient
 
     private class NodePolling implements Runnable
     {
-
         private LoRaNodeClient loRaNodeClient;
         private int responseTimeout = 0;
         private volatile boolean runnning = true;
@@ -275,7 +272,6 @@ public class LoRaNodeClient extends MqttSnClient
             }
         }
 
-        //private
     }
 
 }

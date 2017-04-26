@@ -10,31 +10,17 @@ import java.util.Properties;
 import org.slf4j.LoggerFactory;
 import ts.utility.SystemUtility;
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.model.Filters;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
 
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Date;
-import java.util.Calendar;
 import java.util.TimeZone;
 
 import org.bson.Document;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 /**
@@ -69,11 +55,13 @@ public class MongoDBUploader extends MqttNode
 
         TimeZone tz = TimeZone.getDefault();
         Date gmtTime = new Date(new Date().getTime() + tz.getRawOffset());
+        //Date gmtTime = new Date(new Date().getTime());
 
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String payload=new String(mm.getPayload());
         Document doc = new Document().append("deviceId", topicId).
                 append("userId", this.userUploadId).
-                append("value", new String(mm.getPayload())).
+                append("value", Integer.parseInt(payload)).
                 append("date", gmtTime);
         this.collection.insertOne(doc);
     }

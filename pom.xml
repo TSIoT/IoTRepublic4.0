@@ -9,14 +9,17 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <mainClass>com.trustedsolutions.MainClass</mainClass>
+        <!--<mainClass>com.trustedsolutions.MainClass</mainClass>-->
+        <mainClass>com.trustedsolutions.TestRxTx</mainClass>
     </properties>
     <repositories>
+        <!--RXTX Linrary-->
         <repository>
             <id>geotoolkit</id>
             <name>Geotk repository</name>
             <url>http://maven.geotoolkit.org</url>
         </repository>
+       
     </repositories>
     
     <dependencies>
@@ -67,7 +70,7 @@
             <artifactId>mongo-java-driver</artifactId>
             <version>3.4.2</version>
         </dependency>
-                              
+       
     </dependencies>
     
     <build>

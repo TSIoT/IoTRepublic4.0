@@ -5,26 +5,15 @@
  */
 package ts.mqttsn;
 
-import ts.iot.IMqttNode;
 import ts.iot.MqttNode;
 
-import java.io.File;
-import java.text.ParseException;
-import java.util.Properties;
-import java.util.logging.Level;
 
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import java.util.Properties;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.MqttTopic;
 
-import ts.utility.ConfigurationParser;
+
 import ts.utility.SystemUtility;
 
 /**
