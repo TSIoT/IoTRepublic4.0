@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.TooManyListenersException;
 import java.util.logging.Level;
 
-import ts.mqttsn.MqttSnClient;
+import ts.mqttsn.MqttTcpClient;
 import ts.mqttsn.XBeeAtClient;
 
 /**

@@ -28,7 +28,7 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.LoggerFactory;
-import ts.mqttsn.MqttSnClient;
+import ts.mqttsn.MqttTcpClient;
 
 import ts.utility.ConfigurationParser;
 
@@ -96,7 +96,7 @@ public class PostUploader implements MqttCallback
         } catch (ParseException ex)
         {
             LOG.error(ex.toString());
-            //java.util.logging.Logger.getLogger(MqttSnClient.class.getName()).log(Level.SEVERE, null, ex);
+            //java.util.logging.Logger.getLogger(MqttTcpClient.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -144,7 +144,7 @@ public class PostUploader implements MqttCallback
             } catch (MqttException ex)
             {
                 LOG.error(ex.toString());
-                //java.util.logging.Logger.getLogger(MqttSnClient.class.getName()).log(Level.SEVERE, null, ex);
+                //java.util.logging.Logger.getLogger(MqttTcpClient.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }

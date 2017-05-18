@@ -20,9 +20,9 @@ import ts.utility.SystemUtility;
  *
  * @author loki.chuang
  */
-public class LoRaNodeClient extends MqttSnClient
+public class LoRaNodeTcpClient extends MqttTcpClient
 {
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(LoRaNodeClient.class);
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(LoRaNodeTcpClient.class);
 
     private Properties m_properties = null;
     private final SerialTool serialTool = new SerialTool();
@@ -33,7 +33,7 @@ public class LoRaNodeClient extends MqttSnClient
     private final int responseOkTimeout = 100;
     private NodePolling nodePolling;
 
-    public LoRaNodeClient()
+    public LoRaNodeTcpClient()
     {
         super.setNodeName("LoRaNodeClient");
         this.m_properties = SystemUtility.readConfigFile(this.defaultConfigFilePath);
@@ -135,12 +135,12 @@ public class LoRaNodeClient extends MqttSnClient
 
     private class NodePolling implements Runnable
     {
-        private LoRaNodeClient loRaNodeClient;
+        private LoRaNodeTcpClient loRaNodeClient;
         private int responseTimeout = 0;
         private volatile boolean runnning = true;
         private boolean needReJoin;
 
-        public NodePolling(LoRaNodeClient loRaNodeClient)
+        public NodePolling(LoRaNodeTcpClient loRaNodeClient)
         {
             this.loRaNodeClient = loRaNodeClient;
             String responseTimeout_str = this.loRaNodeClient.m_properties.getProperty("LoRaNodeClientResponseTimeout");
@@ -237,7 +237,7 @@ public class LoRaNodeClient extends MqttSnClient
                     LOG.info("Publish topic:" + topic + ",payload:" + new String(pack.payload));
                 } catch (MqttSnPackage.ParseException ex)
                 {
-                    Logger.getLogger(LoRaNodeClient.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(LoRaNodeTcpClient.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -267,7 +267,7 @@ public class LoRaNodeClient extends MqttSnClient
 
                 } catch (MqttSnPackage.ParseException ex)
                 {
-                    Logger.getLogger(LoRaNodeClient.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(LoRaNodeTcpClient.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         }

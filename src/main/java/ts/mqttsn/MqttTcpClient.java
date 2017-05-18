@@ -9,6 +9,7 @@ import ts.iot.MqttNode;
 
 
 import java.util.Properties;
+import java.util.logging.Level;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,12 +21,12 @@ import ts.utility.SystemUtility;
  *
  * @author loki.chuang
  */
-//public class MqttSnClient  implements MqttCallback,IMqttNode
-public class MqttSnClient extends MqttNode
+//public class MqttTcpClient  implements MqttCallback,IMqttNode
+public class MqttTcpClient extends MqttNode
 {
     //protected String mqttSnName = "Default SN";
 
-    private static final Logger LOG = LoggerFactory.getLogger(MqttSnClient.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MqttTcpClient.class);
 
     //private final ConfigurationParser parser = new ConfigurationParser();
     private final String defaultConfigFilePath = "/config/IoT.config";
@@ -35,7 +36,7 @@ public class MqttSnClient extends MqttNode
     private Properties m_properties = null;
     private Properties topicProperties = null;
 
-    public MqttSnClient()
+    public MqttTcpClient()
     {
         //this.m_properties = this.readConfigFile(this.defaultConfigFilePath);
         this.m_properties = SystemUtility.readConfigFile(this.defaultConfigFilePath);
@@ -50,7 +51,18 @@ public class MqttSnClient extends MqttNode
         String brokerPort = this.m_properties.getProperty("brokerPort");
         String userId = this.m_properties.getProperty("userId");
         String userPassword = this.m_properties.getProperty("userPassword");
-        super.connectToBroker(brokerIp, brokerPort, userId, userPassword);     
+        
+        while(!super.connectToBroker(brokerIp, brokerPort, userId, userPassword))
+        {
+            try
+            {
+                LOG.info("Connect failed, reconnet now...");
+                Thread.sleep(1000);
+            } catch (InterruptedException ex)
+            {
+                java.util.logging.Logger.getLogger(MqttTcpClient.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }     
     }
 
     @Override //MqttNode
@@ -83,7 +95,7 @@ public class MqttSnClient extends MqttNode
         } catch (ParseException ex)
         {
             LOG.error(ex.toString());
-            //java.util.logging.Logger.getLogger(MqttSnClient.class.getName()).log(Level.SEVERE, null, ex);
+            //java.util.logging.Logger.getLogger(MqttTcpClient.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return properties;

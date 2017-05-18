@@ -56,11 +56,14 @@ public abstract class MqttNode implements IMqttNode, MqttCallback
         this.NodeName=name;
     }
     
-    public void connectToBroker(String ip, String port, String id, String password)
+    public boolean connectToBroker(String ip, String port, String id, String password)
     {
         boolean isAnonymous;
         MqttConnectOptions mqttOption = new MqttConnectOptions();
-
+        mqttOption.setCleanSession(true);
+        mqttOption.setAutomaticReconnect(true);
+        
+        
         if (id.length() > 0 && password.length() > 0)
         {
             isAnonymous = false;
@@ -81,8 +84,11 @@ public abstract class MqttNode implements IMqttNode, MqttCallback
 
         } catch (MqttException ex)
         {
-            LOG.error(ex.toString());
+            LOG.error(ex.toString());       
+            return false;
         }
+        
+        return true;
     }
 
     public void disconnectFromBroker()

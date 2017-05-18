@@ -8,13 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import ts.mqttsn.LoRaNodeClient;
+import ts.mqttsn.LoRaNodeTcpClient;
 import ts.service.MongoDBUploader;
 
 
 import ts.utility.SystemUtility;
 import ts.iot.IMqttNode;
-import ts.iot.MqttBroker;
 
 
 
@@ -36,15 +35,10 @@ public class MainClass
         Properties m_properties = null;
           
         m_properties = SystemUtility.readConfigFile(this.defaultConfigFilePath);
-        
-        if (m_properties.getProperty("MQTTBrokerEnable").equals("YES"))
-        {            
-            nodes.add(new MqttBroker());         
-        }
-        
+
         if (m_properties.getProperty("LoRaNodeClientEnable").equals("YES"))
         {            
-            nodes.add(new LoRaNodeClient());         
+            nodes.add(new LoRaNodeTcpClient());         
         }
 
         if (m_properties.getProperty("MongoDBUploaderEnable").equals("YES"))
@@ -67,8 +61,7 @@ public class MainClass
             this.mqttNodes = nodes;
             this.mqttNodes.forEach((node) ->
             {
-                node.Start();
-                
+                node.Start();                
             });
         }
 

@@ -29,7 +29,6 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
  */
 public class MongoDBUploader extends MqttNode
 {
-
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(MongoDBUploader.class);
 
     private Properties m_properties = null;

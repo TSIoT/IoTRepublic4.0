@@ -14,9 +14,7 @@ import org.slf4j.LoggerFactory;
  * @author loki.chuang
  */
 public class MqttSnPackage
-{
-  
-    
+{      
     public enum PackageType
     {
         NOT_IMPLEMENT,

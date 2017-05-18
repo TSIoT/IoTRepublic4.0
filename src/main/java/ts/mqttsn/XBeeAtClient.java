@@ -22,7 +22,7 @@ import ts.utility.SystemUtility;
  *
  * @author loki.chuang
  */
-public class XBeeAtClient extends MqttSnClient
+public class XBeeAtClient extends MqttTcpClient
 {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(XBeeAtClient.class);
 
