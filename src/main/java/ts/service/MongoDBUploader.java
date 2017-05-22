@@ -60,7 +60,7 @@ public class MongoDBUploader extends MqttNode
         String payload=new String(mm.getPayload());
         Document doc = new Document().append("deviceId", topicId).
                 append("userId", this.userUploadId).
-                append("value", Integer.parseInt(payload)).
+                append("value", Double.valueOf(payload)).
                 append("date", gmtTime);
         this.collection.insertOne(doc);
     }
