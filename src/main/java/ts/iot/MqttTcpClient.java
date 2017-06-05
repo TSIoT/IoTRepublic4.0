@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ts.mqttsn;
+package ts.iot;
 
 import ts.iot.MqttNode;
 
@@ -45,13 +45,15 @@ public class MqttTcpClient extends MqttNode
     }
 
     @Override //MqttNode
-    public void Start()
+    public void start()
     {
         String brokerIp = this.m_properties.getProperty("brokerIp");
         String brokerPort = this.m_properties.getProperty("brokerPort");
         String userId = this.m_properties.getProperty("userId");
         String userPassword = this.m_properties.getProperty("userPassword");
+        super.connectToBrokerUntilSuccess(userId, userId, userId, userPassword, 10);
         
+        /*
         while(!super.connectToBroker(brokerIp, brokerPort, userId, userPassword))
         {
             try
@@ -62,11 +64,12 @@ public class MqttTcpClient extends MqttNode
             {
                 java.util.logging.Logger.getLogger(MqttTcpClient.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }     
+        }
+        */
     }
 
     @Override //MqttNode
-    public void Stop()
+    public void stop()
     {
         super.disconnectFromBroker();        
     }

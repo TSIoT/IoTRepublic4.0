@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ts.service;
+package ts.iot.service;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,7 +28,7 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.LoggerFactory;
-import ts.mqttsn.MqttTcpClient;
+import ts.iot.MqttTcpClient;
 
 import ts.utility.ConfigurationParser;
 

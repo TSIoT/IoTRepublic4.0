@@ -5,7 +5,7 @@
  */
 package com.trustedsolutions;
 
-import ts.service.PostUploader;
+import ts.iot.service.PostUploader;
 
 /**
  *

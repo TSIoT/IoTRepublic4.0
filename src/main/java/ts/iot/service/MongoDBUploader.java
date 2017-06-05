@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ts.service;
+package ts.iot.service;
 
 import ts.iot.MqttNode;
 import java.util.Properties;
@@ -36,7 +36,7 @@ public class MongoDBUploader extends MqttNode
 
     private final String dbName = "IoTRepublic";
     private final String colName = "dailydata";
-    String userUploadId;
+    private String userUploadId;
 
     //private MqttClient mqttClient;
     private MongoCollection<Document> collection;
@@ -57,7 +57,7 @@ public class MongoDBUploader extends MqttNode
         //Date gmtTime = new Date(new Date().getTime());
 
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        String payload=new String(mm.getPayload());
+        String payload = new String(mm.getPayload());
         Document doc = new Document().append("deviceId", topicId).
                 append("userId", this.userUploadId).
                 append("value", Double.valueOf(payload)).
@@ -66,7 +66,7 @@ public class MongoDBUploader extends MqttNode
     }
 
     @Override //MqttNode
-    public void Start()
+    public void start()
     {
         String brokerIp = this.m_properties.getProperty("brokerIp");
         String brokerPort = this.m_properties.getProperty("brokerPort");
@@ -75,11 +75,11 @@ public class MongoDBUploader extends MqttNode
 
         this.initMongoDB();
         super.connectToBroker(brokerIp, brokerPort, userId, userPassword);
-        this.initSubscribe();    
+        this.initSubscribe();
     }
-    
+
     @Override //MqttNode
-    public void Stop()
+    public void stop()
     {
         super.disconnectFromBroker();
         //this.disconnectFromBroker();
@@ -103,12 +103,11 @@ public class MongoDBUploader extends MqttNode
     private void initSubscribe()
     {
         String topics = this.m_properties.getProperty("MongoDBsubscribeTopic");
-        if (topics.equals("ALL"))
+
+        String[] topicArray = topics.split(",");
+        for (String topic : topicArray)
         {
-            super.subscribe("#", 0);
-        } else
-        {
-            LOG.error("subscribe specific topic not implement yet");
+            super.subscribe(topic, 1);
         }
     }
 }

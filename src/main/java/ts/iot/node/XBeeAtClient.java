@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ts.mqttsn;
+package ts.iot.node;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +15,8 @@ import ts.utility.SerialTool;
 import java.util.logging.Logger;
 
 import org.slf4j.LoggerFactory;
+import ts.iot.MqttSnPackage;
+import ts.iot.MqttTcpClient;
 import ts.utility.ISerialListener;
 import ts.utility.SystemUtility;
 
@@ -39,14 +41,14 @@ public class XBeeAtClient extends MqttTcpClient
     }
 
     @Override //MqttSnClient
-    public void Start()
+    public void start()
     {
         LOG.info("XBeeAT Client start");
 
         String portName = this.m_properties.getProperty("portName");
         String baudRate = this.m_properties.getProperty("baudRate");
 
-        super.Start();
+        super.start();
         this.serialTool.openComport(portName, baudRate);
         //this.initXBee();
         this.serialTool.startListerSerial(new SerialReader(this));
@@ -54,12 +56,12 @@ public class XBeeAtClient extends MqttTcpClient
     }
 
     @Override //MqttSnClient
-    public void Stop()
+    public void stop()
     {
         LOG.info("XBeeAT Client stop");
         this.serialTool.stopListerSerial();
         this.serialTool.closeComport();
-        super.Stop();
+        super.stop();
     }
 
     private boolean initXBee()

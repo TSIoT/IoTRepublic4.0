@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package ts.mqttsn;
+package ts.iot.node;
 
 import java.util.ArrayList;
 import java.util.Properties;
@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ts.iot.MqttSnPackage;
+import ts.iot.MqttTcpClient;
 import ts.utility.SystemUtility;
 
 /**
@@ -44,13 +46,13 @@ public class LoRaNodeTcpClient extends MqttTcpClient
         for (String address : slaveAddresses)
         {
             this.slaveAddressMap.put(address, Boolean.FALSE);
-        }
+        }                        
     }
 
     @Override //MqttSnClient
-    public void Start()
+    public void start()
     {
-        super.Start();
+        super.start();
 
         LOG.info("LoRa-Node Client start");
 
@@ -64,12 +66,12 @@ public class LoRaNodeTcpClient extends MqttTcpClient
     }
 
     @Override //MqttSnClient
-    public void Stop()
+    public void stop()
     {
         LOG.info("LoRa-Node Client stop");
-        this.nodePolling.StopRunning();
+        this.nodePolling.stopRunning();
         this.serialTool.closeComport();
-        super.Stop();
+        super.stop();
     }
 
     private void initLoRaNode()
@@ -169,7 +171,7 @@ public class LoRaNodeTcpClient extends MqttTcpClient
             LOG.info("Polling node thread safely stoped");
         }
 
-        public void StopRunning()
+        public void stopRunning()
         {
             this.runnning = false;
         }

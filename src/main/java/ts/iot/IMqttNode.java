@@ -11,6 +11,6 @@ package ts.iot;
  */
 public interface IMqttNode
 {
-    public void Start();
-    public void Stop();    
+    public void start();
+    public void stop();    
 }

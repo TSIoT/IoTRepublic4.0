@@ -8,14 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import ts.mqttsn.LoRaNodeTcpClient;
-import ts.service.MongoDBUploader;
+import ts.iot.node.LoRaNodeTcpClient;
+import ts.iot.service.MongoDBUploader;
+import ts.iot.service.ThingsBoardProxy;
 
 
 import ts.utility.SystemUtility;
 import ts.iot.IMqttNode;
-
-
 
 public class MainClass
 {
@@ -45,6 +44,13 @@ public class MainClass
         {            
             nodes.add(new MongoDBUploader());         
         }
+        
+        if (m_properties.getProperty("ThingsBoardEnable").equals("YES"))
+        {            
+            nodes.add(new ThingsBoardProxy());         
+        }
+        
+        
 
         terminteThread = new Terminate(nodes);
 
@@ -61,7 +67,7 @@ public class MainClass
             this.mqttNodes = nodes;
             this.mqttNodes.forEach((node) ->
             {
-                node.Start();                
+                node.start();                
             });
         }
 
@@ -71,7 +77,7 @@ public class MainClass
         {
             this.mqttNodes.forEach((node) ->
             {
-                node.Stop();
+                node.stop();
             });
         }
 

@@ -92,22 +92,13 @@ public class ConfigurationParser
         try
         {
             while ((line = br.readLine()) != null)
-            {
-                int commentMarker = line.indexOf('#');
-                if (commentMarker != -1)
-                {
-                    if (commentMarker == 0)
-                    {
-                        // skip its a comment
-                        continue;
-                    } else
-                    {
-                        // it's a malformed comment
-                        throw new ParseException(line, commentMarker);
-                    }
-                } else
-                {
-                    if (line.isEmpty() || line.matches("^\\s*$"))
+            {                
+                if(line.isEmpty())
+                    continue;
+                                
+                if (line.charAt(0)!='#')                    
+                {                    
+                    if (line.matches("^\\s*$"))
                     {
                         // skip it's a black line
                         continue;
@@ -119,7 +110,8 @@ public class ConfigurationParser
                     String value = line.substring(delimiterIdx + 1).trim();
 
                     m_properties.put(key, value);
-                }
+                } 
+
             }
         } catch (IOException ex)
         {
