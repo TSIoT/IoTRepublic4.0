@@ -26,7 +26,7 @@ import ts.iot.MqttNode;
 public class ThingsBoardProxy extends MqttService
 {
 
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(LoRaNodeTcpClient.class);
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ThingsBoardProxy.class);
     private Properties m_properties = null;
     private final String defaultConfigFilePath = "/config/IoT.config";
     private MqttClient mqttClient = null;
@@ -65,13 +65,9 @@ public class ThingsBoardProxy extends MqttService
         
         JSONObject obj = new JSONObject();
         obj.put(topic, Double.valueOf(msg));
-        
-        
+                
         this.mqttClient.publish(telemetryTopic, obj.toJSONString().getBytes(),1,false);
-        //LOG.info(msg);
-        
-        
-        
+        LOG.info(obj.toJSONString());
         //LOG.debug(topic+":"+msg);
     }
 
@@ -88,8 +84,7 @@ public class ThingsBoardProxy extends MqttService
             
             mqttOption.setCleanSession(true);
             mqttOption.setAutomaticReconnect(true);
-            mqttOption.setUserName(token);
-            
+            mqttOption.setUserName(token);            
             
             String[] subscribeTopics = thingsBoardSubscribeTopic.split(",");
             this.mqttClient = new MqttClient("tcp://" + thingsBoardBrokerIp + ":" + thingsBoardBrokerPort, "thingsBoardProxy");
