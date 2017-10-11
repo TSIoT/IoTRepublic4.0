@@ -9,8 +9,10 @@ import java.util.List;
 import java.util.Properties;
 
 import ts.iot.node.LoRaNodeTcpClient;
+import ts.iot.node.S76sTcpClient;
 import ts.iot.service.MongoDBUploader;
 import ts.iot.service.ThingsBoardProxy;
+
 
 
 import ts.utility.SystemUtility;
@@ -50,8 +52,11 @@ public class MainClass
             nodes.add(new ThingsBoardProxy());         
         }
         
-        
-
+        if (m_properties.getProperty("S76sTcpClientEnable").equals("YES"))
+        {            
+            nodes.add(new S76sTcpClient());         
+        }
+                
         terminteThread = new Terminate(nodes);
 
         Runtime.getRuntime().addShutdownHook(terminteThread);

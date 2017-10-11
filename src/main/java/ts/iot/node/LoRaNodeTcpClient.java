@@ -263,8 +263,9 @@ public class LoRaNodeTcpClient extends MqttTcpClient
                         }
                         pack.parseRecvData(recvPack);
                         String topic = this.loRaNodeClient.findTopicById(pack.topicId);
-                        this.loRaNodeClient.publish(topic, pack.payload, 1, true);
                         LOG.info("Publish topic:" + topic + ",payload:" + new String(pack.payload));
+                        this.loRaNodeClient.publish(topic, pack.payload, 1, false);
+                        
                     } while (MqttSnPackage.isValidPackage(recvBuffer));
 
                 } catch (MqttSnPackage.ParseException ex)

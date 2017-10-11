@@ -185,7 +185,9 @@ public class S76sTcpClient extends MqttTcpClient
                 List<Byte> response = this.loRaNodeClient.serialTool.readSerial_List(1000);
                 if (response.size() > 0)
                 {
-                    LOG.info(response.toString());
+                    //LOG.info(response.toString());
+                    this.mqttPackageTransfer(response);
+                    
                 }
 
             }
