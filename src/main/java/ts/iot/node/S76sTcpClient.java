@@ -79,7 +79,7 @@ public class S76sTcpClient extends MqttTcpClient
     private void initLoRaNode()
     {
         String masterAddress=this.m_properties.getProperty("S76sMasterAddress");
-        List<String> cmds = Arrays.asList("LoraStartWork DISABLE", "LoraAutoBoot 0", "SetSystemMode inNormal", "LoraMode MASTER", "LoraSetMyAddr "+masterAddress);
+        List<String> cmds = Arrays.asList("LoraStartWork DISABLE", "LoraAutoBoot 0", "SetSystemMode inNormal", "LoraMode MASTER", "LoraSetSF 9" ,"LoraSetMyAddr "+masterAddress);
         cmds.forEach((cmd) ->
         {
             this.sendAtCommand(cmd + "\r");
