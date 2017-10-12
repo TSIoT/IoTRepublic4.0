@@ -47,6 +47,10 @@ public class MqttSnPackage
         {
             throw new ParseException("The length field not equal to true length");
         }
+        else if(len<4)
+        {
+            throw new ParseException("The receive data length error:"+len+"");
+        }
 
         switch (recvData[1])
         {

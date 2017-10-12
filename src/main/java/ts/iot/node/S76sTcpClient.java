@@ -226,6 +226,7 @@ public class S76sTcpClient extends MqttTcpClient
 
                 } catch (MqttSnPackage.ParseException ex)
                 {
+                    recvBuffer.clear();
                     Logger.getLogger(LoRaNodeTcpClient.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
